@@ -44,6 +44,7 @@ def main():
         # Si el juego se termino, cerrar
         if (terminar == 1): print("Ganaste")
         elif (terminar == -1): print("Perdiste")
+        if (terminar != 0): break
 
         # Leer la entrada
         print("Ejemplo entrada: R|0,0  o  M|1,5")
