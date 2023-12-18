@@ -1,5 +1,8 @@
 import abc
 import tkinter as tk
+from pygame import mixer
+from ..StateHandler.StateHandler import StateHandlerSingleton
+from ..StateHandler.StateIdle import StateIdle
 
 class Celda(tk.Button, abc.ABC):
     
@@ -59,11 +62,18 @@ class Celda(tk.Button, abc.ABC):
 
     def flag(self) -> None:
         '''Se marca o desmarca la celda'''
-        if (self.state == Celda.NON_REVEALED):
-            self.state = Celda.FLAGGED
-            self.configure(fg='red', bg='#350000')
+        handler = StateHandlerSingleton()
+        if (isinstance(type(handler.getState), StateIdle)):
+            if (self.state == Celda.NON_REVEALED):
+                self.state = Celda.FLAGGED
+                self.configure(fg='red', bg='#350000')
+                self.__playFlagSFX()
+            elif (self.state == Celda.FLAGGED):
+                self.state = Celda.NON_REVEALED
+                self.configure(fg='#464646', bg='#000000')
+            self.configure(text=self.show())
 
-        elif (self.state == Celda.FLAGGED):
-            self.state = Celda.NON_REVEALED
-            self.configure(fg='#464646', bg='#000000')
-        self.configure(text=self.show())
+    def __playFlagSFX(self):
+        mixer.init()
+        mixer.music.load('data/flag.mp3')
+        mixer.music.play()

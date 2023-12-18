@@ -2,6 +2,8 @@ from ..Celdas.Celda import Celda
 from ..Celdas.CeldaBomba import CeldaBomba
 from ..Celdas.CeldaNumero import CeldaNumero
 import random
+import time
+from itertools import batched
 
 import tkinter as tk
 
@@ -38,10 +40,10 @@ class MapaSingleton(tk.Frame):
         self.columns = columns
 
         # Crear las posiciones con bombas
-        bombPositions = random.sample([(x,y) for x in range(rows) for y in range(columns)], bombs)
+        self.bombPositions = random.sample([(x,y) for x in range(rows) for y in range(columns)], bombs)
 
         # Guardar el puntero a la primera celda
-        crearCelda = lambda row, column : CeldaNumero(self) if (row, column) not in bombPositions else CeldaBomba(self)
+        crearCelda = lambda row, column : CeldaNumero(self) if (row, column) not in self.bombPositions else CeldaBomba(self)
         self.__firstCellPtr = crearCelda(0,0)
         self.__firstCellPtr.grid(row=0, column=0, sticky="nsew")
 
@@ -100,4 +102,18 @@ class MapaSingleton(tk.Frame):
             topRightCornerPtr = rightPtr.neighbors[Celda.TOP]
             ptr.addNeighbor(topRightCornerPtr, Celda.TOP_RIGHT)
             ptr = ptr.neighbors[Celda.BOTTOM]
-    
+
+    def revealAllBombs(self):
+        bombasSinDescubrir = list(filter(lambda pos: self.at(pos[0], pos[1]).state == Celda.NON_REVEALED, self.bombPositions))
+        for batch in batched(bombasSinDescubrir, max(1, int(len(bombasSinDescubrir)/10))):
+            for (x,y) in batch:
+                self.at(x,y).discover()
+            time.sleep(0.3)
+
+    def at(self, x, y):
+        if (0 <= x < self.rows and 0 <= y < self.columns):
+            ptr = self.__firstCellPtr
+            for _ in range(x): ptr = ptr.neighbors[Celda.RIGHT]
+            for _ in range(y): ptr = ptr.neighbors[Celda.BOTTOM]
+            return ptr
+        raise ValueError("Se quiere ingresar a una posicion en el mapa fuera del rango")
