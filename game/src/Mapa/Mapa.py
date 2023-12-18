@@ -3,7 +3,9 @@ from ..Celdas.CeldaBomba import CeldaBomba
 from ..Celdas.CeldaNumero import CeldaNumero
 import random
 
-class MapaSingleton:
+import tkinter as tk
+
+class MapaSingleton(tk.Frame):
 
     __instance = None
     __firstCellPtr = None
@@ -21,8 +23,17 @@ class MapaSingleton:
             cls.__instance = super().__new__(cls)
         return cls.__instance
     
-    def create(self, rows, columns, bombs):
+    def create(self, master, rows, columns, bombs, *kwargs):
 
+        # Configurar self (frame)
+        super().__init__(master=master, bg="lightblue")
+        self.grid(sticky="nsew", padx=10, pady=10)
+        for row in range(rows): # Que todas las row sean del mismo tamaño
+            self.grid_rowconfigure(row, weight=1)
+        for column in range(columns):
+            self.grid_columnconfigure(column, weight=1)
+
+        # Guardar informacion importante
         self.rows = rows
         self.columns = columns
 
@@ -30,30 +41,39 @@ class MapaSingleton:
         bombPositions = random.sample([(x,y) for x in range(rows) for y in range(columns)], bombs)
 
         # Guardar el puntero a la primera celda
-        crearCelda = lambda row, column : CeldaNumero() if (row, column) not in bombPositions else CeldaBomba()
+        crearCelda = lambda row, column : CeldaNumero(self) if (row, column) not in bombPositions else CeldaBomba(self)
         self.__firstCellPtr = crearCelda(0,0)
+        self.__firstCellPtr.grid(row=0, column=0, sticky="nsew")
 
         # Crear la primera fila
         ptr = self.__firstCellPtr
-        for row in range(rows-1): 
-            ptr.addNeighbor(crearCelda(row, 0), Celda.RIGHT)
+        for row in range(1, rows): 
+            newCell = crearCelda(row, 0)
+            newCell.grid(row=row, column=0, sticky = "nsew")
+            ptr.addNeighbor(newCell, Celda.RIGHT)
             ptr = ptr.neighbors[Celda.RIGHT]
+            ptr.grid(row=row, column=0)
         # Crear la primera columna (-1 porque el primer nodo ya esta creado)
         ptr = self.__firstCellPtr
-        for column in range(columns-1):
-            ptr.addNeighbor(crearCelda(0, column), Celda.BOTTOM)
+        for column in range(1, columns):
+            newCell = crearCelda(0, column)
+            newCell.grid(row=0, column=column, sticky = "nsew")
+            ptr.addNeighbor(newCell, Celda.BOTTOM)
             ptr = ptr.neighbors[Celda.BOTTOM]
+            ptr.grid(row=0, column=column)
+
 
         # Crear el resto de la estructura
         columnPtr = self.__firstCellPtr
-        for column in range(0, columns-1):
+        for column in range(1, columns):
             
             corner = columnPtr # Vecino de esquina superior izquierda del nodo a crear
 
-            for row in range(0, rows-1):
+            for row in range(1, rows):
 
                 # Crea una nueva celda
-                newCell = crearCelda(row+1, column+1)
+                newCell = crearCelda(row, column)
+                newCell.grid(row=row, column=column, sticky = "nsew")
                 ptr = corner
 
                 # Agregar los vecinos Superior, SuperiorIzquierdo, SuperiorDerecho e Izquierdo a la nueva Celda
@@ -72,54 +92,12 @@ class MapaSingleton:
             # Aumentar el desface vertical
             columnPtr = columnPtr.neighbors[Celda.BOTTOM]
         
-        # Agregar los hermanos de la diagonal de la primera columna
+        # Agregar los hermanos de la diagonal de la primera columna (bugfix)
         ptr = columnPtr = self.__firstCellPtr.neighbors[Celda.BOTTOM]
-        while (ptr != None):
+        for _ in range(columns-1):
             rightPtr = ptr.neighbors[Celda.RIGHT]
             if (rightPtr == None): continue
             topRightCornerPtr = rightPtr.neighbors[Celda.TOP]
             ptr.addNeighbor(topRightCornerPtr, Celda.TOP_RIGHT)
             ptr = ptr.neighbors[Celda.BOTTOM]
-            
-
-        
-    def printCeldas(self):
-        # Recorre el arbol K-Ario
-        yPtr = self.__firstCellPtr
-        while (yPtr != None):
-            xPtr = yPtr
-            while (xPtr != None):
-                print(xPtr.show() + " ", end="")
-                xPtr = xPtr.neighbors[Celda.RIGHT]
-            
-            yPtr = yPtr.neighbors[Celda.BOTTOM]
-            print("")
-
     
-    def getRevealedNumber(self):
-        return Celda.getRevealedNumber()
-
-    def discover(self, x, y):
-        return self.__at(x, y).discover()
-
-    def flag(self, x, y):
-        return self.__at(x, y).flag()
-    
-    def __at(self, x, y):
-        ptr = self.__firstCellPtr
-        for _ in range(x): ptr = ptr.neighbors[Celda.RIGHT]
-        for _ in range(y): ptr = ptr.neighbors[Celda.BOTTOM]
-        return ptr
-
-
-    def realizarAccion(self, accion, x, y) -> bool:
-        '''Realiza una accion, devuelve false si descubriste una bomba'''
-        if (0 <= x < self.rows and 0 <= y < self.columns):
-            # Si se quiere marcar
-            if (accion == self.ACCION_MARCAR):
-                self.__at(x, y).flag()
-                return True
-            # Si se quiere revelar
-            if (accion == self.ACCION_REVELAR and isinstance(self.discover(x, y), CeldaBomba)):
-                return False
-        return True

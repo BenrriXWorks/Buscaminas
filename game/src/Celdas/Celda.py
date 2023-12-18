@@ -1,6 +1,7 @@
 import abc
+import tkinter as tk
 
-class Celda(abc.ABC):
+class Celda(tk.Button, abc.ABC):
     
     # States
     REVEALED = 0
@@ -14,34 +15,36 @@ class Celda(abc.ABC):
     TOP_LEFT, TOP, TOP_RIGHT, LEFT, RIGHT, BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT = range(8)
 
     # Constructor
-    def __init__(self):
+    def __init__(self, master=None):
 
         self.neighbors = [  
             None, None, None,
             None,       None,
             None, None, None
         ]
-        
+
         self.state = Celda.NON_REVEALED
 
+        super().__init__(master=master, text=self.show(), fg="white", bg="#000000", font=('Fixedsys', 18)) # Agregarlo al master
+        self.bind("<Button-1>", lambda _ : self.discover()) # Adaptador para descartar el event que devuelve tk
+        self.bind("<Button-3>", lambda _ : self.flag())
+        # self.bind("<Configure>", lambda _ : self.ajustarFuente())
+        
     @abc.abstractmethod
     def discover(self) -> "Celda":
         pass
 
     @abc.abstractmethod
-    def draw(self) -> "Button":
+    def draw(self) -> str:
         pass
-
-    def getRevealedNumber():
-        return Celda._revealedNumber
 
     def invertNeighborPos(pos) -> int:
         '''Calcula la posicion opuesta en el arreglo de vecinos'''
         return abs(7 - pos)
 
-    def show(self) -> 'Button':
+    def show(self) -> str:
         if (self.state == Celda.NON_REVEALED):
-            return "⏹️"
+            return "  " #"⏹️" # Icono de las celdas sin revelar
         if (self.state == Celda.FLAGGED):
             return "🚩"
         if (self.state == Celda.REVEALED):
@@ -58,5 +61,8 @@ class Celda(abc.ABC):
         '''Se marca o desmarca la celda'''
         if (self.state == Celda.NON_REVEALED):
             self.state = Celda.FLAGGED
+            self.configure(fg='red')
         elif (self.state == Celda.FLAGGED):
             self.state = Celda.NON_REVEALED
+            self.configure(fg='gray')
+        self.configure(text=self.show())
