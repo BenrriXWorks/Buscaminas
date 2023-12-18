@@ -10,7 +10,7 @@ class StateHandlerSingleton:
             cls.__instance = super().__new__(cls)
             cls.__instance.image = tk.PhotoImage()
             cls.__instance.state = None
-            cls.__instance.set_state(StateIdle())
+            cls.__instance.state = StateIdle()
             cls.__bombs = 0
         return cls.__instance
     

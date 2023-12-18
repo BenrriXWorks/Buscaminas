@@ -63,7 +63,8 @@ class Celda(tk.Button, abc.ABC):
     def flag(self) -> None:
         '''Se marca o desmarca la celda'''
         handler = StateHandlerSingleton()
-        if (isinstance(type(handler.getState), StateIdle)):
+        
+        if isinstance(handler.getState(), StateIdle):
             if (self.state == Celda.NON_REVEALED):
                 self.state = Celda.FLAGGED
                 self.configure(fg='red', bg='#350000')
