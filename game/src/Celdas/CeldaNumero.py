@@ -16,7 +16,7 @@ class CeldaNumero(Celda):
             self.configure(text=self.draw(), bg='#262626', fg=self.__numberColors[self.value])
             if (self.value == 0): 
                 # self.grid_forget() # Se hace transparente
-                self.configure(bg="#111111")
+                self.configure(bg="#444444")
                 for neighbor in self.neighbors:
                     if (neighbor != None and neighbor.state != Celda.REVEALED): 
                         neighbor.discover() 

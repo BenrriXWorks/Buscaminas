@@ -25,7 +25,7 @@ class Celda(tk.Button, abc.ABC):
 
         self.state = Celda.NON_REVEALED
 
-        super().__init__(master=master, text=self.show(), fg="white", bg="#000000", font=('Fixedsys', 18)) # Agregarlo al master
+        super().__init__(master=master, text=self.show(), fg="#464646", bg="#000000", font=('Fixedsys', 18)) # Agregarlo al master
         self.bind("<Button-1>", lambda _ : self.discover()) # Adaptador para descartar el event que devuelve tk
         self.bind("<Button-3>", lambda _ : self.flag())
         # self.bind("<Configure>", lambda _ : self.ajustarFuente())
@@ -44,7 +44,7 @@ class Celda(tk.Button, abc.ABC):
 
     def show(self) -> str:
         if (self.state == Celda.NON_REVEALED):
-            return "  " #"⏹️" # Icono de las celdas sin revelar
+            return "  "#"⏹️" # Icono de las celdas sin revelar
         if (self.state == Celda.FLAGGED):
             return "🚩"
         if (self.state == Celda.REVEALED):
@@ -61,8 +61,9 @@ class Celda(tk.Button, abc.ABC):
         '''Se marca o desmarca la celda'''
         if (self.state == Celda.NON_REVEALED):
             self.state = Celda.FLAGGED
-            self.configure(fg='red')
+            self.configure(fg='red', bg='#350000')
+
         elif (self.state == Celda.FLAGGED):
             self.state = Celda.NON_REVEALED
-            self.configure(fg='gray')
+            self.configure(fg='#464646', bg='#000000')
         self.configure(text=self.show())
