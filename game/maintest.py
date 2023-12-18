@@ -2,7 +2,7 @@ import tkinter as tk
 from src.Mapa.Mapa import MapaSingleton
 
 root = tk.Tk()
-root.geometry("800x800")
+root.geometry("1200x1200")
 
 mapa = MapaSingleton()
 mapa.create(root, 40, 40, 100)
