@@ -5,7 +5,8 @@ from ..StateHandler.StateHandler import StateHandlerSingleton
 from ..StateHandler.StateIdle import StateIdle
 
 class Celda(tk.Button, abc.ABC):
-    
+    '''Clase abstracta que define a una Celda. Conoce a todos sus vecinos y los tiene en un arreglo. Extiende a tkinter.Button'''
+
     # States
     REVEALED = 0
     FLAGGED = 1
@@ -28,17 +29,19 @@ class Celda(tk.Button, abc.ABC):
 
         self.state = Celda.NON_REVEALED
 
+        # Crear el Button y vincular los clicks a las funciones
         super().__init__(master=master, text=self.show(), fg="#464646", bg="#000000", font=('Fixedsys', 18)) # Agregarlo al master
         self.bind("<Button-1>", lambda _ : self.discover()) # Adaptador para descartar el event que devuelve tk
         self.bind("<Button-3>", lambda _ : self.flag())
-        # self.bind("<Configure>", lambda _ : self.ajustarFuente())
         
     @abc.abstractmethod
     def discover(self) -> "Celda":
+        '''Describe el comportamiento de descubrir la celda. Se retorna la misma celda'''
         pass
 
     @abc.abstractmethod
     def draw(self) -> str:
+        '''Devuelve el contenido de string de la celda'''
         pass
 
     def invertNeighborPos(pos) -> int:
@@ -47,7 +50,7 @@ class Celda(tk.Button, abc.ABC):
 
     def show(self) -> str:
         if (self.state == Celda.NON_REVEALED):
-            return "  "#"⏹️" # Icono de las celdas sin revelar
+            return "  "
         if (self.state == Celda.FLAGGED):
             return "🚩"
         if (self.state == Celda.REVEALED):
@@ -62,8 +65,9 @@ class Celda(tk.Button, abc.ABC):
 
     def flag(self) -> None:
         '''Se marca o desmarca la celda'''
-        handler = StateHandlerSingleton()
-        
+
+        handler = StateHandlerSingleton() # Handler de estado
+
         if isinstance(handler.getState(), StateIdle):
             if (self.state == Celda.NON_REVEALED):
                 self.state = Celda.FLAGGED
@@ -74,7 +78,8 @@ class Celda(tk.Button, abc.ABC):
                 self.configure(fg='#464646', bg='#000000')
             self.configure(text=self.show())
 
-    def __playFlagSFX(self):
+    def __playFlagSFX(self) -> None:
+        '''Reproduce el efecto de sonido de colocar una bandera'''
         mixer.init()
         mixer.music.load('data/flag.mp3')
         mixer.music.play()

@@ -8,24 +8,26 @@ from itertools import batched
 import tkinter as tk
 
 class MapaSingleton(tk.Frame):
+    '''Construye la estructura de las celdas y tiene la funcion para explotar todas las bombas.
+    Extiende a Frame.'''
 
+    # Informacion de la clase importante
     __instance = None
     __firstCellPtr = None
-
-    # Constantes de ID de accion
-    ACCION_REVELAR = 0
-    ACCION_MARCAR = 1
 
     # Tamaño del mapa
     rows = 0
     columns = 0
 
     def __new__(cls):
+        '''Instance Getter de singleton'''
         if (cls.__instance == None):
             cls.__instance = super().__new__(cls)
         return cls.__instance
     
-    def create(self, master, rows, columns, bombs, *kwargs):
+    def create(self, master, rows:int, columns:int, bombs:int, *kwargs) -> None:
+        '''Construye la red de nodos "Celda" y almacena el puntero al primero.
+        Se le debe entregar el master tk para que los nodos sean hijos de ese frame'''
 
         # Configurar self (frame)
         super().__init__(master=master, bg="lightblue")
@@ -103,14 +105,16 @@ class MapaSingleton(tk.Frame):
             ptr.addNeighbor(topRightCornerPtr, Celda.TOP_RIGHT)
             ptr = ptr.neighbors[Celda.BOTTOM]
 
-    def revealAllBombs(self):
+    def revealAllBombs(self) -> None:
+        '''Revela todas las bombas sin descubrir de 10% en 10%'''
         bombasSinDescubrir = list(filter(lambda pos: self.at(pos[0], pos[1]).state == Celda.NON_REVEALED, self.bombPositions))
         for batch in batched(bombasSinDescubrir, max(1, int(len(bombasSinDescubrir)/10))):
             for (x,y) in batch:
                 self.at(x,y).discover()
             time.sleep(0.3)
 
-    def at(self, x, y):
+    def at(self, x:int, y:int) -> Celda:
+        '''Devuelve la celda en la posicion indicada'''
         if (0 <= x < self.rows and 0 <= y < self.columns):
             ptr = self.__firstCellPtr
             for _ in range(x): ptr = ptr.neighbors[Celda.RIGHT]
