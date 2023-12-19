@@ -1,15 +1,15 @@
 import tkinter as tk
-from src.Mapa.Mapa import MapaSingleton
+from Interfaz import Interfaz
 from src.StateHandler.StateHandler import StateHandlerSingleton
 import sys
 
 class Main:
 
+    @staticmethod
     def main():
-
         # Leer los argumentos
         try:
-            if (len(sys.argv) != 4):
+            if len(sys.argv) != 4:
                 raise ValueError("La llamada debe ser $ game.py <filas> <columnas> <bombas>")
             rows, columns, bombs = map(int, sys.argv[1:])
         except Exception as e:
@@ -24,14 +24,12 @@ class Main:
         gameStateHandler = StateHandlerSingleton()
         gameStateHandler.setMapAttributes(rows, columns, bombs)
 
-        # Crear el mapa de celdas
-        mapa = MapaSingleton()
-        mapa.create(root, rows, columns, bombs)
-        mapa.pack(fill=tk.BOTH, expand=True)
+        # Crear la interfaz
+        interfaz = Interfaz(root)
+        interfaz.inicializar_interfaz(rows, columns, bombs)  # Ajusta según la interfaz
 
         # Iniciar el loop de renderizado de tkinter
         root.mainloop()
 
 if __name__ == "__main__":
-
     Main.main()

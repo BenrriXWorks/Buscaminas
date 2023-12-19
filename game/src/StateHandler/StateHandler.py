@@ -1,51 +1,47 @@
+# StateHandler.py
 import tkinter as tk
 from .StateIdle import StateIdle
 from .GameState import GameState
 
 class StateHandlerSingleton:
-    '''Esta clase maneja los estados de juego. Es un patron mixto, usando singleton y state'''
-
-    # Instancia singleton
     __instance = None
 
     def __new__(cls):
-        '''Constructor de la clase'''
         if cls.__instance is None:
             cls.__instance = super().__new__(cls)
             cls.__instance.image = tk.PhotoImage()
-            cls.__instance.state = None
             cls.__instance.state = StateIdle()
-            cls.__bombs = 0
+            cls.__instance.__bombs = 0
+            cls.__instance.__interface = None  # Agregamos una variable para almacenar la interfaz
         return cls.__instance
     
-    def setMapAttributes(self, rows:int, columns:int, bombs:int) -> None:
-        '''Guarda los atributos para calcular si se termino la partida'''
+    def setMapAttributes(self, rows: int, columns: int, bombs: int) -> None:
         self.__bombs = bombs
         self.__columns = columns
         self.__rows = rows
+        self.set_state(StateIdle())
 
-    def set_state(self, state:"GameState") -> None:
-        '''Cambia el estado de juego'''
+    def set_state(self, state: "GameState") -> None:
         if not isinstance(state, type(self.state)):
             self.state = state
             self.execute_state_action()
 
-    def execute_state_action(self) -> None:
-        '''Ejecuta la accion del estado actual'''
-        self.state.execute(self.change_image)
+    def set_interface(self, interface) -> None:
+        '''Establece la interfaz para que el StateHandler pueda interactuar con ella'''
+        self.__interface = interface
 
-    def change_image(self, new_image_path) -> None:
-        '''Cambia la imagen del objeto almacenado de imagen'''
+    def execute_state_action(self, image_path: str) -> None:
+        self.change_image(image_path)
+        self.__interface.update_interface() if self.__interface else None
+
+    def change_image(self, new_image_path: str) -> None:
         self.image = tk.PhotoImage(file=new_image_path)
 
     def get_image(self) -> tk.PhotoImage:
-        '''Devuelve el objeto imagen que representa al estado'''
         return self.image
     
     def getState(self) -> "GameState.GameState":
-        '''Devuelve el estado de juego actual'''
         return self.state
     
-    def checkWin(self, revealedSpaces) -> bool:
-        '''Retorna true si ya no quedan celdas libres'''
+    def checkWin(self, revealedSpaces: int) -> bool:
         return revealedSpaces == self.__rows * self.__columns - self.__bombs - 1
