@@ -49,6 +49,7 @@ class Celda(tk.Button, abc.ABC):
         return abs(7 - pos)
 
     def show(self) -> str:
+        '''Devuelve la conversion a str de una celda, tomando en cuenta su estado actual'''
         if (self.state == Celda.NON_REVEALED):
             return "  "
         if (self.state == Celda.FLAGGED):
@@ -68,6 +69,7 @@ class Celda(tk.Button, abc.ABC):
 
         handler = StateHandlerSingleton() # Handler de estado
 
+        # Si el estado no es de victoria ni derrota, se puede seguir marcando
         if isinstance(handler.getState(), StateIdle):
             if (self.state == Celda.NON_REVEALED):
                 self.state = Celda.FLAGGED
