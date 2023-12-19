@@ -11,7 +11,7 @@ class MapaSingleton(tk.Frame):
     '''Construye la estructura de las celdas y tiene la funcion para explotar todas las bombas.
     Extiende a Frame.'''
 
-    # Informacion de la clase importante
+    # Informacion de la clase importante es
     __instance = None
     __firstCellPtr = None
 
