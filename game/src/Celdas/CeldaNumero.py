@@ -2,7 +2,7 @@ from .Celda import Celda
 from .CeldaBomba import CeldaBomba
 
 from ..StateHandler.StateHandler import StateHandlerSingleton
-from ..StateHandler.StateIdle import StateIdle
+from ..StateHandler.StateLose import StateLose
 from ..StateHandler.StateWin import StateWin
 
 from pygame import mixer
@@ -23,15 +23,17 @@ class CeldaNumero(Celda):
         gameState = StateHandlerSingleton()
 
         if (self.state == Celda.NON_REVEALED 
-            and isinstance(gameState.getState(), StateIdle)):
+            and not isinstance(gameState.getState(), StateLose)):
 
             self.__playDiscoverSFX()
 
             # Cambiar el estado de juego a victoria si se gano
-            if gameState.checkWin(self._revealedNumber): gameState.set_state(StateWin())
+            if gameState.checkWin(self._revealedNumber):
+                gameState.set_state(StateWin())
 
             self.state = Celda.REVEALED
             Celda._revealedNumber += 1
+
             self.value = len(list(filter(lambda n : isinstance(n, CeldaBomba), self.neighbors)))
             self.configure(text=self.draw(), bg='#262626', fg=self.__numberColors[self.value])
             if (self.value == 0): 

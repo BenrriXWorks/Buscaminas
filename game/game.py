@@ -1,6 +1,6 @@
 import tkinter as tk
-from Interfaz import Interfaz
 from src.StateHandler.StateHandler import StateHandlerSingleton
+from src.Mapa.Mapa import MapaSingleton
 import sys
 
 class Main:
@@ -19,14 +19,19 @@ class Main:
         # Crear la ventana
         root = tk.Tk()
         root.geometry("800x800")
+        root.title("💥 B U S C A M I N A S 💥")
+
+        # Crear el mapa
+        mapa = MapaSingleton()
+        mapa.create(root, rows, columns, bombs)
 
         # Iniciar el manejador del estado de juego
         gameStateHandler = StateHandlerSingleton()
         gameStateHandler.setMapAttributes(rows, columns, bombs)
 
-        # Crear la interfaz
-        interfaz = Interfaz(root)
-        interfaz.inicializar_interfaz(rows, columns, bombs)  # Ajusta según la interfaz
+        # Agrandar el mapa para que ocupe la pantalla
+        mapa.pack()
+        mapa.pack(fill=tk.BOTH, expand=True)
 
         # Iniciar el loop de renderizado de tkinter
         root.mainloop()

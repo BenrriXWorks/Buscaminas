@@ -8,8 +8,10 @@ class Menu:
         self.root = root
         self.root.title("Buscaminas")
         self.root.geometry('540x600')
+        root.resizable(False, False)
+        
         self.root.configure(background="DimGray")
-         # Ruta a la imagen
+        # Ruta a la imagen
         image_path = "data/imagen.png"
         image = tk.PhotoImage(file=image_path)
 
@@ -84,7 +86,7 @@ class Menu:
 
     def iniciar_partida(self, filas, columnas, minas):
         self.root.destroy()
-        llamada= "python3 game/maintest.py " + str(filas) + " " + str(columnas) + " " + str(minas)
+        llamada = "python game/game.py " + str(filas) + " " + str(columnas) + " " + str(minas)
         os.system(llamada)
 
 if __name__ == "__main__":
